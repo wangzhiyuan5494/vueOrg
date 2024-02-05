@@ -1,0 +1,45 @@
+<!--
+ * @Author: wzy
+ * @Date: 2024-02-03 16:12:21
+ * @LastEditTime: 2024-02-05 12:17:03
+ * @LastEditors: wzy
+ * @Description: 
+ * @FilePath: /myVue/index.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+    <div id="app">
+        
+        <h1> hello word</h1>
+    </div>
+    <script src="./dist/vue.js"></script>
+    <script>
+        // rollup.config.js 中打包配置会将Vue挂在到window上
+        // 响应式
+        let vm = new Vue({
+            el:'#app',
+            data(){
+                return {
+                    msg:'hello vue',
+                    info:{
+                        verson:'0.1.0',
+                        userinfo:{
+                            name:'wang'
+                        }
+
+                    },
+                    listData:[1,2,3,4],
+                     arr:[{a:1, b:2}]
+                }
+            },
+            props:{},
+            watch:{}
+        })
+    </script>
+</body>
+</html>
