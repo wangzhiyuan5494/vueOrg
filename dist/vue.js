@@ -4,21 +4,6 @@
 	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Vue = factory());
 })(this, (function () { 'use strict';
 
-	/*
-	 * @Author: wzy
-	 * @Date: 2024-02-12 22:07:27
-	 * @LastEditTime: 2024-02-13 14:46:31
-	 * @LastEditors: wzy
-	 * @Description:
-	 * @FilePath: /myVue/src/compile/index.js
-	 */
-
-	/* 
-	<div id="app">
-	    
-	    <h1> hello word</h1>
-	</div> 
-	*/
 	var ncname = "[a-zA-Z_][\\-\\.0-9_a-zA-Z]*"; //标签名称
 	var qnameCapture = "((?:".concat(ncname, "\\:)?").concat(ncname, ")"); //<span:xx>
 	var startTagOpen = new RegExp("^<".concat(qnameCapture)); //开头箭头
@@ -44,7 +29,6 @@
 	var stack = [];
 	function start(tag, attrs) {
 	  // 开始的标签
-	  console.log(tag, attrs, "开始");
 	  var element = creatASTElement(tag, attrs);
 	  if (!root) {
 	    root = element;
@@ -54,7 +38,6 @@
 	}
 	function charts(text) {
 	  // 文本
-	  console.log(text, "文本");
 	  text = text.replace(/\s/g, "");
 	  if (text) {
 	    creatParent.children.push({
@@ -65,7 +48,6 @@
 	}
 	function end(tag) {
 	  // 结束标签
-	  console.log(tag, "结束标签");
 	  var element = stack.pop();
 	  creatParent = stack[stack.length - 1];
 	  if (creatParent) {
@@ -131,6 +113,15 @@
 	  console.log("root", root);
 	  return root;
 	}
+
+	/*
+	 * @Author: wzy
+	 * @Date: 2024-02-12 22:07:27
+	 * @LastEditTime: 2024-02-13 14:59:44
+	 * @LastEditors: wzy
+	 * @Description:
+	 * @FilePath: /myVue/src/compile/index.js
+	 */
 	function compileToFunction(el) {
 	  parseHTML(el);
 	}

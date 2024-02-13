@@ -1,7 +1,7 @@
 /*
  * @Author: wzy
  * @Date: 2024-02-03 11:45:13
- * @LastEditTime: 2024-02-03 16:13:51
+ * @LastEditTime: 2024-02-13 15:03:13
  * @LastEditors: wzy
  * @Description:
  * @FilePath: /myVue/rollup.config.js
@@ -22,7 +22,7 @@ export default {
 			exclude: "node_modules/**",
 		}),
 		serve({
-			prot: 3000,
+			prot: 5000,
 			contentBase: "",
 			openPage: "./index.html",
 		}),
