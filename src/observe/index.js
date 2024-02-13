@@ -2,7 +2,7 @@
 import { observer } from './index';
  * @Author: wzy
  * @Date: 2024-02-03 18:01:08
- * @LastEditTime: 2024-02-05 12:17:32
+ * @LastEditTime: 2024-02-12 21:27:45
  * @LastEditors: wzy
  * @Description:
  * @FilePath: /myVue/src/observe/index.js
@@ -24,7 +24,6 @@ class Observer {
 			value: this,
 		});
 		if (Array.isArray(data)) {
-			console.log("数组");
 			data.__proto__ = ArrayMehods;
 			// 如果是数组对象
 			this.observerArray(data);

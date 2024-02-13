@@ -2,7 +2,7 @@
 import { observer } from './index';
  * @Author: wzy
  * @Date: 2024-02-03 18:49:19
- * @LastEditTime: 2024-02-05 12:17:20
+ * @LastEditTime: 2024-02-12 21:27:39
  * @LastEditors: wzy
  * @Description: 对数组类型进行响应式处理
  * @FilePath: /myVue/src/observe/arr.js
@@ -25,7 +25,6 @@ methods.forEach((item) => {
 				inserted = args;
 				break;
 			case "splice":
-				console.log("args", args);
 				inserted = args.splice(2);
 				break;
 		}
