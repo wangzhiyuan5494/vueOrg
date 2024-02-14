@@ -1,7 +1,7 @@
 /*
  * @Author: wzy
  * @Date: 2024-02-03 17:28:41
- * @LastEditTime: 2024-02-05 11:56:21
+ * @LastEditTime: 2024-02-14 22:03:26
  * @LastEditors: wzy
  * @Description:
  * @FilePath: /myVue/src/initState.js
@@ -17,6 +17,7 @@ export function initState(vm) {
 	if (opts.methods) {
 	}
 	if (opts.data) {
+		debugger;
 		initData(vm);
 	}
 
@@ -33,6 +34,7 @@ function initData(vm) {
 	for (let key in data) {
 		proxy(vm, "_data", key);
 	}
+	console.log("vm----", vm);
 	// 对data进行劫持
 	observer(data);
 }

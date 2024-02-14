@@ -31,6 +31,51 @@
       return a;
     }
   }
+  function _toPrimitive(t, r) {
+    if ("object" != typeof t || !t) return t;
+    var e = t[Symbol.toPrimitive];
+    if (void 0 !== e) {
+      var i = e.call(t, r || "default");
+      if ("object" != typeof i) return i;
+      throw new TypeError("@@toPrimitive must return a primitive value.");
+    }
+    return ("string" === r ? String : Number)(t);
+  }
+  function _toPropertyKey(t) {
+    var i = _toPrimitive(t, "string");
+    return "symbol" == typeof i ? i : String(i);
+  }
+  function _typeof(o) {
+    "@babel/helpers - typeof";
+
+    return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
+      return typeof o;
+    } : function (o) {
+      return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+    }, _typeof(o);
+  }
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor);
+    }
+  }
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    Object.defineProperty(Constructor, "prototype", {
+      writable: false
+    });
+    return Constructor;
+  }
   function _slicedToArray(arr, i) {
     return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
   }
@@ -57,7 +102,7 @@
   /*
    * @Author: wzy
    * @Date: 2024-02-13 20:23:43
-   * @LastEditTime: 2024-02-14 19:13:06
+   * @LastEditTime: 2024-02-14 21:51:37
    * @LastEditors: wzy
    * @Description:
    * @FilePath: /myVue/src/compile/generate.js
@@ -86,11 +131,12 @@
         attr.value = obj;
       }
       // 拼接
-      str = "".concat(attr.name, ":").concat(JSON.stringify(attr.value), ",");
+      str = "".concat(str).concat(attr.name, ":").concat(JSON.stringify(attr.value), ",");
     };
     for (var i = 0; i < attrs.length; i++) {
       _loop();
     }
+    console.log("str---", str);
     return "{".concat(str.slice(0, -1), "}");
   }
   /**
@@ -122,16 +168,17 @@
       var lastindex = defaultTagRE.lastIndex = 0;
       var match;
       while (match = defaultTagRE.exec(text)) {
-        console.log(match);
+        console.log("match-----", match);
         var index = match.index;
         if (index > lastindex) {
-          tokens.push(JSON.stringify(text.slice(lastindex)));
+          tokens.push(JSON.stringify(text.slice(lastindex, index)));
         }
         tokens.push("_s(".concat(match[1].trim(), ")"));
         lastindex = index + match[0].length;
         if (lastindex < text.length) {
           tokens.push(JSON.stringify(text.slice(lastindex)));
         }
+        debugger;
         return "_v(".concat(tokens.join("+"), ")");
       }
     }
@@ -139,9 +186,10 @@
   function generate(el) {
     // 属性{ id:App,style:{color:ReadableByteStreamController,fontsize:12px}}
     var children = genChildren(el);
-    var code = "_c(".concat(el.tag, ",").concat(el.attrs.length ? "".concat(genPorps(el.attrs)) : "null", ",").concat(children ? "".concat(children) : "null", ")");
+    var code = "_c('".concat(el.tag, "',").concat(el.attrs.length ? "".concat(genPorps(el.attrs)) : "null", ",").concat(children ? "".concat(children) : "null", ")");
     // code _c(div,{style:{"color":" red","font-size":" 12px"}},_v("hello"))
-    console.log("code", code);
+    console.log("code----", code);
+    console.log("el.tag----", el.tag);
     return code;
   }
 
@@ -258,7 +306,7 @@
   /*
    * @Author: wzy
    * @Date: 2024-02-12 22:07:27
-   * @LastEditTime: 2024-02-14 19:22:06
+   * @LastEditTime: 2024-02-14 19:53:55
    * @LastEditors: wzy
    * @Description:
    * @FilePath: /myVue/src/compile/index.js
@@ -274,6 +322,7 @@
 
     var render = new Function("with(this){return ".concat(code, "}"));
     console.log(render);
+    return render;
   }
   /**
    *  <div id="app">
@@ -291,9 +340,180 @@
    */
 
   /*
+  import { observer } from './index';
+   * @Author: wzy
+   * @Date: 2024-02-03 18:49:19
+   * @LastEditTime: 2024-02-12 21:27:39
+   * @LastEditors: wzy
+   * @Description: 对数组类型进行响应式处理
+   * @FilePath: /myVue/src/observe/arr.js
+   */
+  // 重写数组
+  // 获取数组原来的方法
+  var oldArrayProtoMethods = Array.prototype;
+  // 继承
+  var ArrayMehods = Object.create(oldArrayProtoMethods);
+  // 劫持
+  var methods = ["push", "pop", "shift", "unshift", "sort", "splice", "reverse"];
+  methods.forEach(function (item) {
+    ArrayMehods[item] = function () {
+      console.log("劫持数组");
+      // 对追加数据进行响应式处理
+      var inserted;
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+      switch (item) {
+        case "push":
+        case "unshift":
+          inserted = args;
+          break;
+        case "splice":
+          inserted = args.splice(2);
+          break;
+      }
+      // 如果有追加的实例则将追加的数据进行响应式处理
+      var ob = this.__ob__;
+      if (inserted) {
+        ob.observerArray(inserted);
+      }
+      var result = oldArrayProtoMethods[item].apply(this, args);
+      return result;
+    };
+  });
+
+  function observer(data) {
+    if (_typeof(data) !== "object" || data == null) {
+      return data;
+    }
+    // 对象类型处理
+    return new Observer(data);
+  }
+  var Observer = /*#__PURE__*/function () {
+    function Observer(data) {
+      _classCallCheck(this, Observer);
+      // 给data定义一个属性 将observer内置的方法绑定到上面，方便后续逻辑调用
+      Object.defineProperty(data, "__ob__", {
+        enumerable: false,
+        value: this
+      });
+      if (Array.isArray(data)) {
+        data.__proto__ = ArrayMehods;
+        // 如果是数组对象
+        this.observerArray(data);
+      } else {
+        // 对象
+        this.walk(data); // 遍历
+      }
+    }
+    _createClass(Observer, [{
+      key: "walk",
+      value: function walk(data) {
+        var keys = Object.keys(data);
+        for (var i = 0; i < keys.length; i++) {
+          // 对每个属性进行劫持
+          var key = keys[i];
+          var value = data[key];
+          defineReactive(data, key, value);
+        }
+      }
+    }, {
+      key: "observerArray",
+      value: function observerArray(data) {
+        // 处理数组内是对象的情况
+        for (var i = 0; i < data.length; i++) {
+          observer(data[i]);
+        }
+      }
+    }]);
+    return Observer;
+  }();
+  function defineReactive(data, key, value) {
+    // 对像类型进行递归处理,深度劫持
+    observer(value);
+    Object.defineProperty(data, key, {
+      get: function get() {
+        return value;
+      },
+      set: function set(newValue) {
+        if (newValue == value) return;
+        observer(newValue); // 如果设置的是对象，则进行数据响应
+        value = newValue;
+      }
+    });
+  }
+
+  // 总结：
+  // 1.对象类型处理
+  // Object.defineProperty 有缺点 只能对 对象中的一个属性进行劫持
+  // 深层嵌套对象需要遍历 递归处理
+  // 用户在对劫持数据进行set操作时 如果新的数据是对象类型也需要进行响应式处理
+
+  // 2.数组
+  // 对数组的劫持采用的是，重写可以改变数组本省的7个方法（push,pop,shift,unshift,splice,sort,reverse）
+
+  /*
+   * @Author: wzy
+   * @Date: 2024-02-03 17:28:41
+   * @LastEditTime: 2024-02-14 22:03:26
+   * @LastEditors: wzy
+   * @Description:
+   * @FilePath: /myVue/src/initState.js
+   */
+  function initState(vm) {
+    var opts = vm.$options;
+    //判断
+    if (opts.props) ;
+    if (opts.methods) ;
+    if (opts.data) {
+      debugger;
+      initData(vm);
+    }
+    if (opts.computed) ;
+    if (opts.watch) ;
+  }
+  function initData(vm) {
+    var data = vm.$options.data;
+    // 判断data类型是对象还是函数 获取data配置
+    data = vm._data = typeof data == "function" ? data.call(vm) : data; //注意这里this指向
+    // 将data上所有的属性代理到vm实例上
+    for (var key in data) {
+      proxy(vm, "_data", key);
+    }
+    console.log("vm----", vm);
+    // 对data进行劫持
+    observer(data);
+  }
+  function proxy(vm, source, key) {
+    Object.defineProperty(vm, key, {
+      get: function get() {
+        return vm[source][key];
+      },
+      set: function set(newValue) {
+        vm[source][key] = newValue;
+      }
+    });
+  }
+
+  /*
+   * @Author: wzy
+   * @Date: 2024-02-14 19:37:36
+   * @LastEditTime: 2024-02-14 19:49:06
+   * @LastEditors: wzy
+   * @Description:
+   * @FilePath: /myVue/src/lifecycle.js
+   */
+  function mountComponent(vm, el) {
+    vm._update(vm._render());
+  }
+  function lifecycleMinxin(Vue) {
+    Vue.prototype._update = function (vnode) {};
+  }
+
+  /*
    * @Author: wzy
    * @Date: 2024-02-03 17:16:22
-   * @LastEditTime: 2024-02-12 22:14:13
+   * @LastEditTime: 2024-02-14 22:08:54
    * @LastEditors: wzy
    * @Description:
    * @FilePath: /myVue/src/init.js
@@ -303,6 +523,7 @@
       var vm = this;
       this.$options = options;
       // 初始化状态
+      initState(vm);
       console.log(vm);
       // 渲染模版 el
       if (vm.$options.el) {
@@ -323,16 +544,78 @@
 
           // 变成ast语法树
 
-          compileToFunction(el);
+          var render = compileToFunction(el);
+          console.log("render", render);
+          /**
+           * 将render函数变成vnode
+           * 将vnode变成真实dom放到页面上
+           *
+           */
+          options.render = render;
         }
       }
+      mountComponent(vm);
     };
+  }
+
+  /*
+   * @Author: wzy
+   * @Date: 2024-02-14 19:33:30
+   * @LastEditTime: 2024-02-14 21:57:23
+   * @LastEditors: wzy
+   * @Description:
+   * @FilePath: /myVue/src/vnode/index.js
+   */
+  /**
+   * @description: 虚拟dom
+   * @param {*} Vue
+   * @return {*}
+   */
+  function renderMixin(Vue) {
+    Vue.prototype._c = function () {
+      // 标签
+      // 创建标签
+      return createElement.apply(void 0, arguments);
+    };
+    Vue.prototype._v = function (text) {
+      // 文本
+      return createText(text);
+    };
+    Vue.prototype._s = function (val) {
+      return val == null ? "" : _typeof(val) === "object" ? JSON.stringify(val) : val;
+      // 变量
+    };
+    Vue.prototype._render = function () {
+      var vm = this;
+      console.log("this---", this);
+      var render = vm.$options.render;
+      var vnode = render.call(this);
+      console.log("vnode", vnode);
+    };
+  }
+  function createElement(tag) {
+    var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    for (var _len = arguments.length, children = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+      children[_key - 2] = arguments[_key];
+    }
+    return vnode(tag, data, children);
+  }
+  function vnode(tag, data, children, text) {
+    return {
+      tag: tag,
+      data: data,
+      children: children,
+      text: text
+    };
+  }
+  function createText(text) {
+    return vnode(undefined, undefined, undefined, text);
   }
 
   /*
    * @Author: your name
    * @Date: 2024-02-03 10:45:00
-   * @LastEditTime: 2024-02-03 17:39:01
+   * @LastEditTime: 2024-02-14 19:50:18
    * @LastEditors: wzy
    * @Description:
    * @FilePath: /myVue/src/index.js
@@ -342,6 +625,8 @@
     this._init(options);
   }
   initMixin(Vue);
+  lifecycleMinxin(Vue); // 添加生命周期
+  renderMixin(Vue); // 添加render
 
   return Vue;
 
