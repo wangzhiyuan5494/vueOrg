@@ -1,7 +1,7 @@
 /*
  * @Author: wzy
  * @Date: 2024-02-12 22:07:27
- * @LastEditTime: 2024-02-14 18:12:30
+ * @LastEditTime: 2024-02-14 19:22:06
  * @LastEditors: wzy
  * @Description:
  * @FilePath: /myVue/src/compile/index.js
@@ -21,7 +21,12 @@ export function compileToFunction(el) {
 	let ast = parseHTML(el);
 
 	// 将ast 语法树变成 render 函数 1）ast语法树 变成 字符串 2）字符串变成函数
-	generate(ast);
+	let code = generate(ast);
+
+	// 将ast字符串变成函数
+
+	let render = new Function(`with(this){return ${code}}`);
+	console.log(render);
 }
 /**
  *  <div id="app">
