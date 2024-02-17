@@ -1,7 +1,7 @@
 /*
  * @Author: wzy
  * @Date: 2024-02-03 11:45:13
- * @LastEditTime: 2024-02-13 15:03:13
+ * @LastEditTime: 2024-02-14 22:18:47
  * @LastEditors: wzy
  * @Description:
  * @FilePath: /myVue/rollup.config.js
@@ -19,7 +19,7 @@ export default {
 	},
 	plugins: [
 		babel({
-			exclude: "node_modules/**",
+			exclude: ["node_modules/**", "dist/**"],
 		}),
 		serve({
 			prot: 5000,

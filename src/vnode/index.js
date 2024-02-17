@@ -1,7 +1,7 @@
 /*
  * @Author: wzy
  * @Date: 2024-02-14 19:33:30
- * @LastEditTime: 2024-02-14 21:57:23
+ * @LastEditTime: 2024-02-14 22:26:06
  * @LastEditors: wzy
  * @Description:
  * @FilePath: /myVue/src/vnode/index.js
@@ -31,10 +31,9 @@ export function renderMixin(Vue) {
 	};
 	Vue.prototype._render = function () {
 		let vm = this;
-		console.log("this---", this);
 		let render = vm.$options.render;
 		let vnode = render.call(this);
-		console.log("vnode", vnode);
+		return vnode;
 	};
 }
 function createElement(tag, data = {}, ...children) {

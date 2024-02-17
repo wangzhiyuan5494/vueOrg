@@ -1,7 +1,7 @@
 /*
  * @Author: wzy
  * @Date: 2024-02-12 22:07:27
- * @LastEditTime: 2024-02-14 19:53:55
+ * @LastEditTime: 2024-02-14 22:24:04
  * @LastEditors: wzy
  * @Description:
  * @FilePath: /myVue/src/compile/index.js
@@ -26,7 +26,6 @@ export function compileToFunction(el) {
 	// 将ast字符串变成函数
 
 	let render = new Function(`with(this){return ${code}}`);
-	console.log(render);
 	return render;
 }
 /**

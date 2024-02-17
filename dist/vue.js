@@ -102,7 +102,7 @@
   /*
    * @Author: wzy
    * @Date: 2024-02-13 20:23:43
-   * @LastEditTime: 2024-02-14 21:51:37
+   * @LastEditTime: 2024-02-14 22:23:46
    * @LastEditors: wzy
    * @Description:
    * @FilePath: /myVue/src/compile/generate.js
@@ -136,7 +136,6 @@
     for (var i = 0; i < attrs.length; i++) {
       _loop();
     }
-    console.log("str---", str);
     return "{".concat(str.slice(0, -1), "}");
   }
   /**
@@ -160,7 +159,6 @@
       var text = node.text;
       if (!defaultTagRE.test(text)) {
         // 纯文本
-        console.log("text", text);
         return "_v(".concat(JSON.stringify(text), ")");
       }
       // 插值文本
@@ -168,7 +166,6 @@
       var lastindex = defaultTagRE.lastIndex = 0;
       var match;
       while (match = defaultTagRE.exec(text)) {
-        console.log("match-----", match);
         var index = match.index;
         if (index > lastindex) {
           tokens.push(JSON.stringify(text.slice(lastindex, index)));
@@ -188,8 +185,6 @@
     var children = genChildren(el);
     var code = "_c('".concat(el.tag, "',").concat(el.attrs.length ? "".concat(genPorps(el.attrs)) : "null", ",").concat(children ? "".concat(children) : "null", ")");
     // code _c(div,{style:{"color":" red","font-size":" 12px"}},_v("hello"))
-    console.log("code----", code);
-    console.log("el.tag----", el.tag);
     return code;
   }
 
@@ -299,14 +294,13 @@
     function advance(n) {
       html = html.substring(n);
     }
-    console.log("root", root);
     return root;
   }
 
   /*
    * @Author: wzy
    * @Date: 2024-02-12 22:07:27
-   * @LastEditTime: 2024-02-14 19:53:55
+   * @LastEditTime: 2024-02-14 22:24:04
    * @LastEditors: wzy
    * @Description:
    * @FilePath: /myVue/src/compile/index.js
@@ -321,7 +315,6 @@
     // 将ast字符串变成函数
 
     var render = new Function("with(this){return ".concat(code, "}"));
-    console.log(render);
     return render;
   }
   /**
@@ -343,7 +336,7 @@
   import { observer } from './index';
    * @Author: wzy
    * @Date: 2024-02-03 18:49:19
-   * @LastEditTime: 2024-02-12 21:27:39
+   * @LastEditTime: 2024-02-14 22:24:13
    * @LastEditors: wzy
    * @Description: 对数组类型进行响应式处理
    * @FilePath: /myVue/src/observe/arr.js
@@ -357,7 +350,6 @@
   var methods = ["push", "pop", "shift", "unshift", "sort", "splice", "reverse"];
   methods.forEach(function (item) {
     ArrayMehods[item] = function () {
-      console.log("劫持数组");
       // 对追加数据进行响应式处理
       var inserted;
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -455,7 +447,7 @@
   /*
    * @Author: wzy
    * @Date: 2024-02-03 17:28:41
-   * @LastEditTime: 2024-02-14 22:03:26
+   * @LastEditTime: 2024-02-14 22:23:43
    * @LastEditors: wzy
    * @Description:
    * @FilePath: /myVue/src/initState.js
@@ -480,7 +472,6 @@
     for (var key in data) {
       proxy(vm, "_data", key);
     }
-    console.log("vm----", vm);
     // 对data进行劫持
     observer(data);
   }
@@ -496,9 +487,58 @@
   }
 
   /*
+  import { parseHTML } from '../compile/parseAst';
+   * @Author: wzy
+   * @Date: 2024-02-14 22:29:18
+   * @LastEditTime: 2024-02-17 14:46:00
+   * @LastEditors: wzy
+   * @Description:
+   * @FilePath: /myVue/src/vnode/path.js
+   */
+  /**
+   * @description:将虚拟dom变成真实dom
+   * @param {*} oldVnode
+   * @param {*} vnode
+   * @return {*}
+   */
+  function patch(oldVnode, vnode) {
+    console.log(oldVnode, vnode);
+    var el = createEl(vnode);
+    console.log(el);
+    // 替换 dom  1）获取父节点 2）插入 3）删除
+    var parentEl = oldVnode.parentNode;
+    parentEl.insertBefore(el, oldVnode.nextsibling);
+    parentEl.removeChild(oldVnode);
+    return el;
+  }
+  /**
+   * @description: 创建dom
+   * @return {*}
+   */
+  function createEl(vnode) {
+    var tag = vnode.tag,
+      children = vnode.children;
+      vnode.key;
+      vnode.data;
+      var text = vnode.text;
+    if (typeof tag == "string") {
+      //标签
+      vnode.el = document.createElement(tag);
+      if (children && children.length > 0) {
+        children.forEach(function (child) {
+          vnode.el.appendChild(createEl(child));
+        });
+      }
+    } else {
+      vnode.el = document.createTextNode(text);
+    }
+    return vnode.el;
+  }
+
+  /*
    * @Author: wzy
    * @Date: 2024-02-14 19:37:36
-   * @LastEditTime: 2024-02-14 19:49:06
+   * @LastEditTime: 2024-02-17 14:46:21
    * @LastEditors: wzy
    * @Description:
    * @FilePath: /myVue/src/lifecycle.js
@@ -507,13 +547,17 @@
     vm._update(vm._render());
   }
   function lifecycleMinxin(Vue) {
-    Vue.prototype._update = function (vnode) {};
+    Vue.prototype._update = function (vnode) {
+      console.log(vnode);
+      var vm = this;
+      vm.$el = patch(vm.$el, vnode);
+    };
   }
 
   /*
    * @Author: wzy
    * @Date: 2024-02-03 17:16:22
-   * @LastEditTime: 2024-02-14 22:08:54
+   * @LastEditTime: 2024-02-14 22:28:11
    * @LastEditors: wzy
    * @Description:
    * @FilePath: /myVue/src/init.js
@@ -524,7 +568,6 @@
       this.$options = options;
       // 初始化状态
       initState(vm);
-      console.log(vm);
       // 渲染模版 el
       if (vm.$options.el) {
         vm.$mount(vm.$options.el);
@@ -535,17 +578,16 @@
     Vue.prototype.$mount = function (el) {
       var vm = this;
       el = document.querySelector(el); // 获取元素
+      vm.$el = el;
       var options = vm.$options;
       if (!options.render) {
         var template = options.template;
         if (!template && el) {
           el = el.outerHTML;
-          console.log(el);
 
           // 变成ast语法树
 
           var render = compileToFunction(el);
-          console.log("render", render);
           /**
            * 将render函数变成vnode
            * 将vnode变成真实dom放到页面上
@@ -561,7 +603,7 @@
   /*
    * @Author: wzy
    * @Date: 2024-02-14 19:33:30
-   * @LastEditTime: 2024-02-14 21:57:23
+   * @LastEditTime: 2024-02-14 22:26:06
    * @LastEditors: wzy
    * @Description:
    * @FilePath: /myVue/src/vnode/index.js
@@ -587,10 +629,9 @@
     };
     Vue.prototype._render = function () {
       var vm = this;
-      console.log("this---", this);
       var render = vm.$options.render;
       var vnode = render.call(this);
-      console.log("vnode", vnode);
+      return vnode;
     };
   }
   function createElement(tag) {

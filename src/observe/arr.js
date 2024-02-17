@@ -2,7 +2,7 @@
 import { observer } from './index';
  * @Author: wzy
  * @Date: 2024-02-03 18:49:19
- * @LastEditTime: 2024-02-12 21:27:39
+ * @LastEditTime: 2024-02-14 22:24:13
  * @LastEditors: wzy
  * @Description: 对数组类型进行响应式处理
  * @FilePath: /myVue/src/observe/arr.js
@@ -16,7 +16,6 @@ export let ArrayMehods = Object.create(oldArrayProtoMethods);
 let methods = ["push", "pop", "shift", "unshift", "sort", "splice", "reverse"];
 methods.forEach((item) => {
 	ArrayMehods[item] = function (...args) {
-		console.log("劫持数组");
 		// 对追加数据进行响应式处理
 		let inserted;
 		switch (item) {

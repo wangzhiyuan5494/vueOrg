@@ -106,6 +106,5 @@ export function parseHTML(html) {
 	function advance(n) {
 		html = html.substring(n);
 	}
-	console.log("root", root);
 	return root;
 }
