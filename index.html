@@ -1,7 +1,7 @@
 <!--
  * @Author: wzy
  * @Date: 2024-02-03 16:12:21
- * @LastEditTime: 2024-02-14 22:17:08
+ * @LastEditTime: 2024-02-17 15:19:20
  * @LastEditors: wzy
  * @Description: 
  * @FilePath: /myVue/index.html
@@ -21,6 +21,9 @@
     <script>
         // rollup.config.js 中打包配置会将Vue挂在到window上
         // 响应式
+        Vue.mixin({
+            created(){}
+        })
         let vm = new Vue({
             el:'#app',
             data(){

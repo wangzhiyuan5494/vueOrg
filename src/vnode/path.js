@@ -2,7 +2,7 @@
 import { parseHTML } from '../compile/parseAst';
  * @Author: wzy
  * @Date: 2024-02-14 22:29:18
- * @LastEditTime: 2024-02-17 14:46:00
+ * @LastEditTime: 2024-02-17 15:20:16
  * @LastEditors: wzy
  * @Description:
  * @FilePath: /myVue/src/vnode/path.js
@@ -14,9 +14,9 @@ import { parseHTML } from '../compile/parseAst';
  * @return {*}
  */
 export function patch(oldVnode, vnode) {
-	console.log(oldVnode, vnode);
+	// console.log(oldVnode, vnode);
 	let el = createEl(vnode);
-	console.log(el);
+	// console.log(el);
 	// 替换 dom  1）获取父节点 2）插入 3）删除
 	let parentEl = oldVnode.parentNode;
 	parentEl.insertBefore(el, oldVnode.nextsibling);
